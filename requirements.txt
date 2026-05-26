@@ -8,3 +8,4 @@ celery
 numpy
 openai
 python-dotenv
+pydantic-settings
