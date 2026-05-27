@@ -1,35 +1,25 @@
 from openai import AsyncOpenAI
+
 from app.core.config import settings
 
 
-class OpenAIClientManager:
-    """
-    Centralized OpenAI client manager.
-
-    Responsibilities:
-    - API key management
-    - model defaults
-    - future retry logic
-    - future logging/tracking
-    - future rate limiting
-    """
+class AIClient:
 
     _client = None
 
     @classmethod
-    def get_client(cls) -> AsyncOpenAI:
+    def get_client(cls):
 
         if cls._client is None:
+
             cls._client = AsyncOpenAI(
-                api_key=settings.OPENAI_API_KEY
+                api_key=settings.DEEPSEEK_API_KEY,
+                base_url=settings.DEEPSEEK_BASE_URL
             )
 
         return cls._client
 
 
-def get_openai_client() -> AsyncOpenAI:
-    """
-    Convenience helper.
-    """
+def get_ai_client():
 
-    return OpenAIClientManager.get_client()
+    return AIClient.get_client()

@@ -1,8 +1,21 @@
 from fastapi import FastAPI
-from app.api.routes import analysis, hands, health
 
-app = FastAPI()
+from app.api.routes.analysis import router as analysis_router
 
-app.include_router(analysis.router)
-app.include_router(hands.router)
-app.include_router(health.router)
+app = FastAPI(
+    title="Poker Analysis API"
+)
+
+app.include_router(
+    analysis_router,
+    prefix="/analysis",
+    tags=["Analysis"]
+)
+
+
+@app.get("/")
+async def root():
+
+    return {
+        "message": "Poker Analysis API Running"
+    }

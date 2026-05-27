@@ -1,4 +1,22 @@
-@router.post("/analyze")
-async def analyze_hand(request: AnalysisRequest):
+from fastapi import APIRouter
 
-    return analysis_service.analyze(request)
+from app.ai.coaching_engine import CoachingEngine
+from app.schemas.analysis_schema import (
+    HandAnalysisRequest
+)
+
+router = APIRouter()
+
+coach = CoachingEngine()
+
+
+@router.post("/analyze")
+async def analyze_hand(
+    hand: HandAnalysisRequest
+):
+
+    result = await coach.analyze_hand(
+        hand.dict()
+    )
+
+    return result

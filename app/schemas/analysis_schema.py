@@ -1,14 +1,24 @@
 from pydantic import BaseModel
-from typing import List, Optional
 
-class Action(BaseModel):
-   street: str
-   player: str
-   action: str
-   amount: Optional[float] = None
 
-class AnalysisRequest(BaseModel):
-   hero_cards: List[str]
-   board: List[str]
-   pot: float
-   actions: List[Action]
+class HandAnalysisRequest(BaseModel):
+
+    game_type: str
+
+    hero_hand: str
+
+    board: str
+
+    hero_position: str
+
+    villain_position: str
+
+    hero_stack: float
+
+    villain_stack: float
+
+    pot_size: float
+
+    action_history: str
+
+    villain_notes: str

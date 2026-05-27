@@ -1,59 +1,53 @@
-from typing import Dict, Any
-from openai import AsyncOpenAI
+import json
 
-from app.ai.prompts import build_coaching_prompt
+from app.ai.openai_client import get_ai_client
+from app.ai.prompts import build_poker_prompt
+
+from app.core.config import settings
 
 
 class CoachingEngine:
+
     def __init__(self):
-        self.client = AsyncOpenAI()
 
-    async def explain_analysis(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        self.client = get_ai_client()
 
-        prompt = build_coaching_prompt(data)
+    async def analyze_hand(self, data):
+
+        prompt = build_poker_prompt(data)
 
         try:
+
             response = await self.client.chat.completions.create(
-                model="gpt-4.1-mini",
-                temperature=0.2,
-                response_format={"type": "json_object"},
-                messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are an elite poker coach specializing in:\n"
-                            "- GTO strategy\n"
-                            "- exploitative play\n"
-                            "- tournament poker\n"
-                            "- cash game analysis\n"
-                            "- range construction\n"
-                            "- population tendencies\n\n"
+    model=settings.DEEPSEEK_MODEL,
+    temperature=0.2,
 
-                            "Your job is to:\n"
-                            "1. Analyze mistakes\n"
-                            "2. Explain strategic concepts\n"
-                            "3. Suggest better actions\n"
-                            "4. Provide exploitative adjustments\n"
-                            "5. Teach clearly and concisely\n\n"
+    # ✅ ADD THIS LINE
+    response_format={"type": "json_object"},
 
-                            "Always return valid JSON."
-                        )
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
+    messages=[
+        {
+            "role": "system",
+            "content": "You are a poker AI. Return ONLY valid JSON. No text."
+        },
+        {
+            "role": "user",
+            "content": prompt
+        }
+    ]
+)
 
             content = response.choices[0].message.content
 
+            parsed = json.loads(content)
+
             return {
                 "success": True,
-                "analysis": content
+                "data": parsed
             }
 
         except Exception as e:
+
             return {
                 "success": False,
                 "error": str(e)
