@@ -1,22 +1,11 @@
-from fastapi import APIRouter
-
-from app.ai.coaching_engine import CoachingEngine
-from app.schemas.analysis_schema import (
-    HandAnalysisRequest
-)
+from fastapi import APIRouter, Depends
+from app.schemas.hand_schema import HandCreateSchema
+from app.services.analysis_service import analyze_spot
 
 router = APIRouter()
 
-coach = CoachingEngine()
-
-
 @router.post("/analyze")
-async def analyze_hand(
-    hand: HandAnalysisRequest
-):
-
-    result = await coach.analyze_hand(
-        hand.dict()
-    )
-
+async def analyze_hand(hand_data: HandCreateSchema): # <-- FastAPI automatically validates your new JSON here
+    # Pass the validated Pydantic model data down to your service layer
+    result = await analyze_spot(hand_data.dict())
     return result
