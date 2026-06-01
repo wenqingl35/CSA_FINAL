@@ -1,2 +1,3 @@
-# CSA_FINAL
-csa final project
+# Poker AI Analysis bot 
+Our app uses takes user input of the intricacies of the game including the following items: game type (ex: Cash Game), player's hand listed number then suit (ex: 5h Ad), the board which can be 3-5 cards, the player's postion (ex: BB = big blind etc.), the amount of money the player has, how much is in the pot already, and and the action history listed by the player the action and if they added money to the pot, lastly there is a list of each opponent by name, postion, chip stack and a tiny description about the opponent habits (ex: Rarely raises).
+After inputing in said data into the program the app will take those inputed strings and intergers and turn it into one jason file to send to the ai in the prompt being told it's a professional poker coach. The AI will do all the calulations and give back a json file that will once again be paresed and tell the player in end: the equity in the pot or percentage of winning (ex: 0.28)
