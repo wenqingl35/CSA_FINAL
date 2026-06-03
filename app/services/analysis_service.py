@@ -1,36 +1,51 @@
-from app.ai.coaching_engine import CoachingEngine 
-from app.engine.recommendation_engine import RecommendationEngine
+from app.ai.coaching_engine import CoachingEngine
+from app.engine.simple_evaluator import estimate_hand_strength
+from app.engine.mistake_detector import detect_mistakes
 
 mc = CoachingEngine()
-recommender = RecommendationEngine()
+
 
 async def analyze_spot(request: dict):
 
-   # 1. Call the correct, existing async method using 'await'
-   engine_result = await mc.analyze_hand(request)
+    # STEP 1: compute equity (deterministic poker logic)
+    equity = estimate_hand_strength(
+        request.get("hero_hand", []),
+        request.get("board", [])
+    )
 
-   # 2. Check if the AI analysis succeeded
-   if not engine_result.get("success"):
-       return {
-           "success": False,
-           "error": engine_result.get("error", "AI Analysis failed")
-       }
+    request["computed_equity"] = equity
 
-   # Extract the parsed AI response data
-   ai_data = engine_result.get("data", {})
-   equity = ai_data.get("estimated_equity", 0.50)
+    # STEP 2: AI analysis
+    engine_result = await mc.analyze_hand(request)
 
-   # 3. Pass the extracted equity to your recommendation engine
-   recommendation = recommender.recommend(equity)
+    if not engine_result.get("success"):
+        return {
+            "success": False,
+            "error": engine_result.get("error", "AI Analysis failed")
+        }
 
-   # 4. Safely read action history
-   actions = request.get('action_history', [])
-   played_action = actions[-1].get('action') if actions else "None"
+    ai_data = engine_result.get("data", {})
 
-   # Return the combined response back to the route
-   return {
-       "equity": equity,
-       "recommendation": recommendation,
-       "played_action": played_action,
-       "ai_coaching": ai_data  # Includes full JSON response from the updated prompt
-   }
+    # STEP 3: find hero action
+    played_action = None
+
+    for action in reversed(request.get("action_history", [])):
+        if action.get("player", "").lower() == "hero":
+            played_action = action.get("action")
+            break
+
+    # STEP 4: rule-based mistake detection (NEW)
+    rule_mistakes = detect_mistakes(
+        equity,
+        played_action,
+        request.get("hero_hand", []),
+        request.get("board", []),
+        request.get("pot_size", 0)
+    )
+
+    # STEP 5: merge everything
+    ai_data["played_action"] = played_action
+    ai_data["computed_equity"] = equity
+    ai_data["rule_based_mistakes"] = rule_mistakes
+
+    return ai_data
