@@ -4,7 +4,7 @@ class GameStateManager:
         self.current_hand = None
 
     def start_hand(self, hand_data):
-        self.current_hand = hand_data
+        self.current_hand = dict(hand_data)
 
     def get_hand(self):
         return self.current_hand
@@ -32,13 +32,9 @@ class GameStateManager:
         if board is not None:
             self.current_hand["board"] = board
 
-        if actions:
-
+        if actions is not None:
             self.current_hand.setdefault("action_history", [])
-
-            for action in actions:
-                self.current_hand["action_history"].append(action)
+            self.current_hand["action_history"].extend(actions)
 
 
 game_state = GameStateManager()
-        

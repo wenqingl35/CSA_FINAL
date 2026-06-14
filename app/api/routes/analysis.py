@@ -7,5 +7,5 @@ router = APIRouter()
 @router.post("/analyze")
 async def analyze_hand(hand_data: HandCreateSchema): # <-- FastAPI automatically validates your new JSON here
     # Pass the validated Pydantic model data down to your service layer
-    result = await analyze_spot(hand_data.dict())
+    result = await analyze_spot(hand_data.model_dump())
     return result

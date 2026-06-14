@@ -23,7 +23,7 @@ async def update_hand(data: dict):
 
     game_state.update_state (
     board=data.get("board"),
-    actions=data.get("actions")
+    actions = data.get("actions") or data.get("action_history")
     )
 
     return {
