@@ -420,132 +420,118 @@ def finished():
     # -----------------------------
     # NEW: Update Hand button
     # -----------------------------
-    update_button = tk.Button(root, text="Update Hand", font=("Arial", 14),
-                            command=lambda: update_board_screen())
+    update_button = tk.Button(root, text="Update Hand", command=update_board_screen).pack(pady=15)
     update_button.pack(pady=15)
 
 def update_board_screen():
     for widget in root.winfo_children():
         widget.destroy()
 
-    current_board = flop_input.split() if flop_input else []
-    cards_needed = 5 - len(current_board)
+    label = tk.Label(root, text="Enter Updated Board (e.g. 'As Kd 7c')", font=("Arial", 16))
+    label.pack(pady=10)
 
-    # If board is already complete → skip to actions
-    if cards_needed <= 0:
-        update_actions_screen()
-        return
+    board_entry = tk.Entry(root, width=40)
+    board_entry.insert(0, flop_input)
+    board_entry.pack(pady=10)
 
-    title = tk.Label(root, text=f"Add {cards_needed} More Board Card(s)", font=("Arial", 16))
-    title.pack(pady=10)
-
-    entry = tk.Entry(root, width=30)
-    entry.pack(pady=10)
-
-    def save_board():
+    def next_step():
         global flop_input
-        new_cards = entry.get().strip().split()
-
-        if len(new_cards) != cards_needed:
-            title.config(text=f"Enter exactly {cards_needed} card(s)")
-            return
-
-        flop_input = " ".join(current_board + new_cards)
+        flop_input = board_entry.get().strip()
         update_actions_screen()
 
-    save_button = tk.Button(root, text="Next", command=save_board)
-    save_button.pack(pady=10)
+    tk.Button(root, text="Next", command=next_step).pack(pady=10)
 
 def update_actions_screen():
     for widget in root.winfo_children():
         widget.destroy()
 
-    title = tk.Label(root, text="Update Actions", font=("Arial", 16))
+    # We will build a NEW action list from scratch
+    updated_actions = []
+
+    # List of all players in order: Hero first, then opponents
+    players = ["Hero"] + [opp["name"] for opp in opponents_list]
+    index = 0
+
+    title = tk.Label(root, text=f"Enter action for {players[index]}", font=("Arial", 16))
     title.pack(pady=10)
 
-    entry = tk.Entry(root, width=40)
-    entry.insert(0, str(action_list))
-    entry.pack(pady=10)
+    action_entry = tk.Entry(root, width=40)
+    action_entry.pack(pady=10)
 
-    def save_actions():
-        global action_list
+    amount_entry = tk.Entry(root, width=20)
+    amount_entry.pack(pady=5)
+    amount_entry.insert(0, "0")
+
+    def next_player():
+        nonlocal index
+
+        # Save current player's action
+        player_name = players[index]
+        action = action_entry.get().strip()
+        amount = amount_entry.get().strip()
+
         try:
-            action_list = eval(entry.get().strip())
+            amount = float(amount)
         except:
-            title.config(text="Invalid action format")
+            amount = 0.0
+
+        updated_actions.append({
+            "player": player_name,
+            "action": action,
+            "amount": amount
+        })
+
+        # Move to next player
+        index += 1
+
+        if index >= len(players):
+            # Finished all players → save and move on
+            global action_list
+            action_list = updated_actions
+            update_pot_screen()
             return
 
-        update_pot_screen()
+        # Reset UI for next player
+        title.config(text=f"Enter action for {players[index]}")
+        action_entry.delete(0, tk.END)
+        amount_entry.delete(0, tk.END)
+        amount_entry.insert(0, "0")
 
-    next_button = tk.Button(root, text="Next", command=save_actions)
-    next_button.pack(pady=10)
-
-def update_actions_screen():
-    for widget in root.winfo_children():
-        widget.destroy()
-
-    title = tk.Label(root, text="Update Actions", font=("Arial", 16))
-    title.pack(pady=10)
-
-    entry = tk.Entry(root, width=40)
-    entry.insert(0, str(action_list))
-    entry.pack(pady=10)
-
-    def save_actions():
-        global action_list
-        try:
-            action_list = eval(entry.get().strip())
-        except:
-            title.config(text="Invalid action format")
-            return
-
-        update_pot_screen()
-
-    next_button = tk.Button(root, text="Next", command=save_actions)
-    next_button.pack(pady=10)
+    tk.Button(root, text="Next", command=next_player).pack(pady=10)
     
 def update_pot_screen():
     for widget in root.winfo_children():
         widget.destroy()
 
-    title = tk.Label(root, text="Update Pot Size", font=("Arial", 16))
-    title.pack(pady=10)
+    label = tk.Label(root, text="Enter Updated Pot Size", font=("Arial", 16))
+    label.pack(pady=10)
 
     entry = tk.Entry(root, width=20)
     entry.insert(0, str(pot_size_value))
     entry.pack(pady=10)
 
-    def save_pot():
+    def analyze():
         global pot_size_value
-        try:
-            pot_size_value = float(entry.get().strip())
-        except:
-            title.config(text="Invalid pot size")
-            return
-
+        pot_size_value = float(entry.get().strip())
         analyze_updated_hand()
 
-    next_button = tk.Button(root, text="Analyze", command=save_pot)
-    next_button.pack(pady=10)
+    tk.Button(root, text="Analyze", command=analyze).pack(pady=10)
 
 def analyze_updated_hand():
     for widget in root.winfo_children():
         widget.destroy()
 
-    # Build update payload
     update_payload = {
         "board": flop_input.split(),
-        "actions": action_list
+        "actions": action_list,
+        "pot_size": pot_size_value
     }
 
-    # Send update
     requests.post(f"{apiurl}/hand/update", json=update_payload)
-
-    # Get analysis
     analysis = requests.get(f"{apiurl}/hand/current").json()
 
-    title = tk.Label(root, text="Updated Analysis", font=("Arial", 16))
-    title.pack(pady=10)
+    label = tk.Label(root, text="Updated Analysis", font=("Arial", 16))
+    label.pack(pady=10)
 
     frame = tk.Frame(root)
     frame.pack(fill="both", expand=True)
