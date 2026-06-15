@@ -38,7 +38,7 @@ root.geometry("350x350")
 i = tk.IntVar(value=1)
 j = tk.IntVar(value=1)
 
-label = tk.Label(root, text="Hello, Tkinter!")
+label = tk.Label(root, text="Welcome!")
 label.pack(pady=10)
 
 label2 = tk.Label(root, textvariable=i, font=("Arial", 24))
