@@ -3,30 +3,30 @@
 
 How to run it locally:
 To run our project locally move the code to a local coding studio like VS Code as the UI will not work properly when run in GitHub CodeSpaces. After transferring gui.py to vs code change the apiurl variable with your github code space url and (ie. apiurl = "https://laughing-lamp-974gv5gr5q992777x-8000.app.github.dev")(you will need to do pip install requests on vs before you can run it and also have python installed). Afterwards you click run the code and the ui should pop up. You will then be prompted to put in the following things:
-- Player hand written number then suit (String ex: ad|qs) 
-- How many cards on the Board (int)
-- Board (String ex: (as 5c 9h)(can also be left blank and updated later if you input 0 for board size))
-- Position (String but only takes BTN,BB,SB,MP,UTG,CO)
-- Hero Stack or how much the player has (int)
-- Action History (Each player action will ask for the Name of player going (refer to yourself as “Hero” and others as given name later in opponents), the action (call, check, raise or fold), and the amount (if folded put amount as 0))
-- Opponents (1-5) (Each one give a name, position, stack and any notes on said player’s playing style but can be left blank if you don’t know)
+ - Player hand written number then suit (String ex: ad|qs) 
+ - How many cards on the Board (int)
+ - Board (String ex: (as 5c 9h)(can also be left blank and updated later if you input 0 for board size))
+ - Position (String but only takes BTN,BB,SB,MP,UTG,CO)
+ - Hero Stack or how much the player has (int)
+ - Action History (Each player action will ask for the Name of player going (refer to yourself as “Hero” and others as given name later in opponents), the action (call, check, raise or fold), and the amount (if folded put  amount as 0))
+ - Opponents (1-5) (Each one give a name, position, stack and any notes on said player’s playing style but can be left blank if you don’t know)
 After inputting said things the program will run the initial through the AI for processing and give out:
 The program will give out:
-- The last played action of the player
-- The estimated equity calculated
+ - The last played action of the player
+ - The estimated equity calculated
 The AI will give out:
-- The recommended action 
-- Ranges the opponent likely has based off actions
-- Mistakes based off action
-- An explanation of how the game is going and analyzes and give the best strategy
-- Coach advice or what the bot suggest what you should have done with detail like how much you should raise by
-- Confidence in said advice
-- Its own calculated equity 
-- And rule based mistakes point out obvious things like not raising when the equity is so high.
+ - The recommended action 
+ - Ranges the opponent likely has based off actions
+ - Mistakes based off action
+ - An explanation of how the game is going and analyzes and give the best strategy
+ - Coach advice or what the bot suggest what you should have done with detail like how much you should raise by
+ - Confidence in said advice
+ - Its own calculated equity 
+ - And rule based mistakes point out obvious things like not raising when the equity is so high.
 The program will then prompt and as if you would like to update the game state. The things you can change are:
-- Board (input the whole changed board)
-- Pot size
-- And action rotation again in the same format as the beginning 
+ - Board (input the whole changed board)
+ - Pot size
+ - And action rotation again in the same format as the beginning 
 After updating it will merge said files and send it back to the AI so you can get more advice. If you want to start another new game, reload the whole program to analyze another game.
 
 Research Paper:
